@@ -1,3 +1,11 @@
+# Version information
+
+These are the Windows binaries of FLAC version git-3725add6 20241015 (23-Oct-2024) compiled by Maxim Masiutin.
+These Windows binaries are optimized at compile time for Intel Sapphire Rapids CPUs, launched in Q1'2003 and may not work on older CPUs.
+See below for the original README.md
+
+
+
 <!---
 /* FLAC - Free Lossless Audio Codec
  * Copyright (C) 2001-2009  Josh Coalson

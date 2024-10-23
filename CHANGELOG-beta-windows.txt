@@ -1,0 +1,181 @@
+What's new in the Windows binaries of FLAC version git-3725add6 20241015 (23-Oct-2024) since FLAC 1.4.3 (23-Jun-2023).
+These Windows binaries are optimized at compile time for Intel Sapphire Rapids CPUs, launched in Q1'2003 and may not work on older CPUs.
+
+    Convert unused seekpoints in template to placeholders (#754)
+    See https://lists.xiph.org/pipermail/flac-dev/2024-October/006671.html
+    for details
+    Speed up undefined behavior fuzzing of decoder (#753)
+    Address signed integer overflow (#751)
+    Credit: Oss-Fuzz
+    Issue: https://issues.oss-fuzz.com/issues/42526392
+    Don't try to skip link after allocation failure (#752)
+    Credit: Oss-Fuzz
+    Issue: https://issues.oss-fuzz.com/issues/371233030
+    Free metadata if subsequent allocation fails (#750)
+    Credit: Oss-Fuzz
+    Issue: https://issues.oss-fuzz.com/issues/42538223
+    Disable fuzzer_tool_flac for i386 (#749)
+    Revert commits ce91056 and 33b9a4a, disable tool_flac fuzzer for
+    i386 ASAN because weird bugs keep popping up
+    Improve allocation of linkdetails, check more often (#748)
+    Credit: Oss-Fuzz
+    Issue: https://issues.oss-fuzz.com/issues/370562609
+    Issue: https://issues.oss-fuzz.com/issues/371068253
+    Only fail on memory allocation after initializing other variables (#747)
+    As this issue was not reproducible, this might not actually be a
+    fix.
+    Credit: Oss-Fuzz
+    Issue: https://issues.oss-fuzz.com/issues/42538252
+    Fix memory leak in flac command line tool (#746)
+    Credit: Oss-Fuzz
+    Issue: https://issues.oss-fuzz.com/issues/42538282
+    Fix signed integer overflow in seeking code (#745)
+    Also add some more seeking tests
+    Credit: Oss-Fuzz
+    Issue: https://issues.oss-fuzz.com/issues/369652821
+    Add two error statuses to the stream decoder for broken files (#744)
+    Bump library version numbers and update ABI dumps
+    Remove reference to ogg_sync_check
+    ogg_sync_check is not properly exported by libogg, causing problems
+    compiling on win32. It can be removed though, as that check is
+    included already through ogg_sync_buffer.
+    Add FLAC__stream_decoder_skip_single_link and use in seeking
+    This commit adds the capability to find the end of a link through
+    seeking instead of by reading forward, which should be much more
+    efficient. It also exposes this capability through the new API
+    function FLAC__stream_decoder_skip_single_link
+    This commit includes additions to the test suite and fuzzers
+    Save serial numbers of other streams in each link
+    Do not trigger assert in seeking code when fuzzing
+    Add seedcorpus for fuzzer_seek and fix heap overflow
+    Reduce chance of ogg serial number collision
+    When two ogg streams were made with two different calls to `flac`
+    within the same second, their serial numbers would be the same.
+    This caused problems with seeking in the test suite. While in
+    theory, libFLAC should be able to seek in a chained stream with
+    two equal serial numbers without fail, in practice seeking in
+    chained streams is hard enough. So, this commit makes sure the
+    chained test files have links with unequal serial numbers.
+    Concerning the use of specific casts, shifts and masks: For some
+    reason, on some platforms, seemingly, saturating arithmetic was
+    used where overflow was expected, in effect always seeding with
+    the same number, UINT32_MAX.
+    Add support for seeking in multiplexed chained streams
+    Pick first FLAC bitstream in Ogg instead of any first bitstream
+    Add Github action checking with ogg disabled
+    Add capability to libFLAC to seek in chained streams
+    Add tests for decoding of chained streams
+    Improve decoding of chained streams in flac command line tool
+    Overhaul decoding of chained streams in libFLAC
+    Use Ogg end of stream marker when decode-chained-stream not enabled
+    Add capability to decode chained stream to flac command line tool
+    Add functions to decode chained stream to API
+    Co-authored-by: Martijn van Beurden <mvanb1@gmail.com>
+    Add capability to decode chained stream to libFLAC
+    use ogg_page_granulepos to get number of samples written for Ogg FLAC (#743)
+    Co-authored-by: Martijn van Beurden <mvanb1@gmail.com>
+    Remove debug messages (#741)
+    When compiled with NDEBUG defined, the test suite output was
+    extremely noisy. As both these debug messages have served me no
+    use the last few years, it is time to remove them.
+    Fix overflow when skipping over raw input (#737)
+    Fixes https://github.com/xiph/flac/issues/655
+    Add note to metaflac warning about writing to symlinks
+    Let libFLAC handle symlinks on metadata handling
+    Without this commit, libFLAC happily overwrites symlinks with
+    a new file. With this patch, it tries to follow the symlink,
+    and fails if it points to another filesystem (i.e. when rename
+    doesn't work)
+    Check for ID3v1 tags (#738)
+    Remove microbench (#736)
+    This commit removes 'microbench', as it is no longer relevant. For
+    more information on its former purpose, see
+    https://lists.xiph.org/pipermail/flac-dev/2015-September/005608.html
+    Polish previous commit: add failure messages and fix memory leaks
+    Check return code of static_metadata_append()
+    Fix crash due to ignored memory allocation error in
+    static_metadata_append().
+    Allow alloccheck to keep failing
+    don't just pass 0 for samples in Ogg/FLAC callback
+    This is a fix for https://github.com/xiph/flac/issues/661
+    Improve console output of flac tool (#734)
+    Fixes various cases of erratic behaviour (most notably output not
+    starting on the first character of a line). Also, some warnings
+    and errors now mark the location in the stream where this error
+    seems to have occured
+    Remove --explain option from flac command line program (#721)
+    The `flac` command had 4 levels of documentation: short help,
+    help, explain and manpage. The explain is removed in favour of
+    referring to the much more comprehensive manpage
+    Work around i386 ASAN fseek bug
+    For some reason, i386 ASAN's fseek does not have large file
+    support, and off_t is actually a 32-bit int
+    Do not try to apply replaygain when bps changes
+    Credit: Oss-Fuzz
+    Issue: N/A
+    Work around i386 ASAN null pointer bug
+    For some reason, i386 ASAN does not copy a pointer somewhere in the
+    code. Using gdb I get a mention of a synthetic pointer, so perhaps
+    the compiler instrumented with ASAN thinks this pointer isn't
+    used. Anyway, commit adds a check for that null pointer which
+    isn't necessary otherwise and is only activated for i386 ASAN.
+    Credit: Oss-Fuzz
+    Issue: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=58524
+    Do not try to apply replaygain when bps < 4 or bps > 24
+    Turn replaygain application off when impossible
+    Addition to commit 808efb3. That commit threw a warning, but did
+    not actually turn off replaygain application.
+    Credit: Oss-Fuzz
+    Issue: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=70482
+    Add level 0 Ogg reading capability to tests and docs
+    Enable MD5 checking of input when reencoding to stdout
+    Enable level 0 metadata interface to read Ogg files too
+    Check that MD5 sums are the same when re-encoding FLAC file
+    Fix printing of usage_error (#727)
+    This was missed in commit dda3e77
+    Fix endless loop in foreign metadata handling (#725)
+    Credit: Oss-Fuzz
+    Issue: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=58545
+    Enable fuzzing of writing foreign metadata back on decoding
+    The output file was deleted before writing back foreign metadata
+    could take place, making that code always fail and not covered by
+    fuzzing
+    Fix mistake in fuzzing seed corpus
+    The seed corpus had a file that was supposed to cover replaygain
+    synthesis, but didn't have any replaygain tags. Because of the
+    fixed format of these tags, they aren't reasonbly reachable by
+    fuzzing without help
+    Update copyright to 2024 (#722)
+    Fix analyze mode trying to get positions from stdin (#720)
+    Credit: Oss-Fuzz
+    Issue: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=68539
+    Address two Clang warnings
+    Remove unnecessary assert condition
+    Credit: Oss-Fuzz
+    Issue: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=60777
+    More Pandoc HTML fixes (#717)
+    - Make html manpages build with old pandoc versions
+    - Add building of html docs to CMake
+    Make UTF-8 decoder more restrictive (#712)
+    Fixes https://github.com/xiph/flac/issues/706
+    Update 'distcheck' github action to Ubuntu 24.04
+    Add building of a tarball to github actions
+    Build HTML docs: manpage readers are very uncommon on Windows
+    Improve flac executable built-in help text (#708)
+    Co-authored-by: Martijn van Beurden <mvanb1@gmail.com>
+    On WIN32, set stdout/stderr to UTF-8 (#714)
+    When stderr (flac) or stdout (metaflac) is redirected to a file,
+    output of non-ASCII characters fails. This commit should fix that.
+    Fixes https://github.com/xiph/flac/issues/713
+    NOTE: To enable this change, metaflac no longer outputs
+    application block data as binary directly, because that would
+    potentially result in incorrect UTF-8 codepoint. Instead, all
+    bytes that cannot be represented as printable ASCII are
+    replaced with the Unicode replacement character
+    Fix https://github.com/m-ab-s/media-autobuild_suite/issues/2718 (#711)
+    test: stop using which (#709)
+    `which` is an external command which isn't required by POSIX.
+    Debian and other distributions (like Gentoo!) are looking
+    to drop it from their base set of packages.
+    Switch to `command -v` which is, however, POSIX. See https://lwn.net/Articles/874049/.
+    ...other changes, see the Git changelog
